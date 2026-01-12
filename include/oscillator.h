@@ -158,7 +158,7 @@ public:
 class PolyCone : public Oscillator
 {
     const Point3D *path = CONE_PATH;
-    const uint32_t path_count = CUBE_PATH_COUNT;
+    const uint32_t path_count = CONE_PATH_COUNT;
     uint32_t ph_rot = 0;
 
 public:
