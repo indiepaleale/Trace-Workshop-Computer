@@ -63,6 +63,7 @@ public:
   {
     // Move to next oscillator
     currentOscIndex++;
+    PulseOut(2, true);
 
     // If we've exhausted oscillators in current bank, move to next bank
     if (currentOscIndex >= bankSizes[currentBank])
@@ -77,22 +78,30 @@ public:
 
   static inline bool knobChanged(int32_t prev, int32_t curr)
   {
-    return  (curr - prev > 4) || (prev - curr > 4);
+    return (curr - prev > 4) || (prev - curr > 4);
   }
 
   virtual void ProcessSample()
   {
+
     // Check for oscillator change
     if (SwitchChanged() && SwitchVal() == Down)
     {
       CycleOscillator();
+      PulseOut1(true);
     }
-    if (PulseIn1RisingEdge()){
+    else
+    {
+      PulseOut1(false);
+    }
+    if (PulseIn1RisingEdge())
+    {
       currentBank = (currentBank + 1) % 3;
       currentOscIndex = 0;
       currentOsc = banks[currentBank][currentOscIndex];
     }
-    if( PulseIn2RisingEdge()){
+    if (PulseIn2RisingEdge())
+    {
       currentOscIndex = (currentOscIndex + 1) % bankSizes[currentBank];
       currentOsc = banks[currentBank][currentOscIndex];
     }
@@ -123,13 +132,17 @@ public:
     // Update parameters only when guards are released
     if (SwitchVal() == Up)
     {
-      if (!mod1guard) mod1_att = knobx_curr;
-      if (!mod2guard) mod2_att = knoby_curr;
+      if (!mod1guard)
+        mod1_att = knobx_curr;
+      if (!mod2guard)
+        mod2_att = knoby_curr;
     }
     else
     {
-      if (!mod1guard) mod1_off = knobx_curr;
-      if (!mod2guard) mod2_off = knoby_curr;
+      if (!mod1guard)
+        mod1_off = knobx_curr;
+      if (!mod2guard)
+        mod2_off = knoby_curr;
     }
 
     int32_t mod1 = mod1_off + (AudioIn1() * mod1_att >> 12);
@@ -137,8 +150,7 @@ public:
 
     // oscillator phase increment
     int32_t knobMain = KnobVal(Main);
-    int32_t FM = CVIn1();
-    int32_t phaseInc = (knobMain * knobMain << 3) + (FM * FM << 3);
+    int32_t phaseInc = knobMain * knobMain << 3;
 
     phase += phaseInc < 0 ? 0 : phaseInc;
 
