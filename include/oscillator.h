@@ -262,8 +262,8 @@ public:
         int32_t yang_l = lookup1024(ph, YANG->left);
         int32_t yang_r = lookup1024(ph, YANG->right);
 
-        out[0] = (yin_l * (int32_t)(65536 - (morph >> 16)) + yang_l * (int32_t)(morph >> 16)) >> 16;
-        out[1] = -(yin_r * (int32_t)(65536 - (morph >> 16)) + yang_r * (int32_t)(morph >> 16)) >> 16;
+        out[0] = (yin_l * (int32_t)(65536 - (morph >> 16)) + yang_l * (int32_t)(morph >> 16)) * 6 >> 19; // scale 6/8
+        out[1] = -(yin_r * (int32_t)(65536 - (morph >> 16)) + yang_r * (int32_t)(morph >> 16)) * 6 >> 19;
     }
 
 protected:
