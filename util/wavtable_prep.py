@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
 """
 Converts a stereo WAV file into a C++ wavetable header format.
 Resamples to 1024 samples and outputs signed 16-bit integer arrays.
 """
 
 import sys
+import os
 import wave
 import numpy as np
 from scipy import signal
@@ -194,15 +194,17 @@ def main():
         description='Convert stereo WAV file to C++ wavetable header (1024 samples, signed 16-bit)'
     )
     parser.add_argument('input', help='Input WAV file path')
-    parser.add_argument('-n', '--name', default='WAVETABLE', 
-                        help='Base name for C++ arrays (default: WAVETABLE)')
     parser.add_argument('-o', '--output', 
-                        help='Output header file path (default: print to stdout)')
+                        help='Output header file path (default: ../include/lookup_tables.h)')
     
     args = parser.parse_args()
     
+    # Set default output path if not provided
+    if args.output is None:
+        args.output = os.path.join(os.path.dirname(__file__), '..', 'include', 'lookup_tables.h')
+    
     try:
-        wav_to_wavetable(args.input, args.name, args.output)
+        wav_to_wavetable(args.input, 'WAVETABLE', args.output)
     except FileNotFoundError:
         print(f"Error: File '{args.input}' not found.", file=sys.stderr)
         sys.exit(1)

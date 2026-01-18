@@ -1,6 +1,7 @@
 import sys
 import os
 import math
+import argparse
 
 def parse_obj(filename):
     """Parses OBJ file and extracts unique edges and vertices."""
@@ -121,21 +122,36 @@ def generate_header(filename, vertices, path):
     return "\n".join(header)
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python prepare_mesh.py <model.obj>")
+    parser = argparse.ArgumentParser(
+        description='Convert OBJ 3D model to optimized C++ header with edge path'
+    )
+    parser.add_argument('input', help='Input OBJ file path')
+    parser.add_argument('-o', '--output', 
+                        help='Output header file path (default: ../data/mesh_data.h)')
+    
+    args = parser.parse_args()
+    
+    # Set default output path if not provided
+    if args.output is None:
+        args.output = os.path.join(os.path.dirname(__file__), '..', 'data', 'mesh_data.h')
+    
+    try:
+        v_data, e_data = parse_obj(args.input)
+        final_path = find_optimized_path(v_data, e_data)
+        
+        header_content = generate_header(args.input, v_data, final_path)
+        
+        with open(args.output, "w") as f:
+            f.write(header_content)
+            
+        print(f"--- Processing Complete ---")
+        print(f"Input: {args.input}")
+        print(f"Unique Edges: {len(e_data)}")
+        print(f"Path Points:  {len(final_path)}")
+        print(f"Header saved to: {args.output}")
+    except FileNotFoundError:
+        print(f"Error: File '{args.input}' not found.", file=sys.stderr)
         sys.exit(1)
-        
-    obj_file = sys.argv[1]
-    v_data, e_data = parse_obj(obj_file)
-    final_path = find_optimized_path(v_data, e_data)
-    
-    header_content = generate_header(obj_file, v_data, final_path)
-    
-    with open("../data/new_mesh_data.h", "w") as f:
-        f.write(header_content)
-        
-    print(f"--- Processing Complete ---")
-    print(f"Input: {obj_file}")
-    print(f"Unique Edges: {len(e_data)}")
-    print(f"Path Points:  {len(final_path)}")
-    print(f"Header saved to: ../dat/anew_mesh_data.h")
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
