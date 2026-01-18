@@ -78,6 +78,6 @@ After conversion, copy the data into repective headers and  create a new instanc
 - Use binary code for LED for maximum 8 banks of 8 oscillators
 
 ## Credit
-Big thanks to @Jerobeam Fenderson for inspiration, find amazing oscilloscope art on his website [oscilloscope music](https://oscilloscopemusic.com)
+Big thanks to @Jerobeam Fenderson for inspiration. Find amazing oscilloscope art on his website [oscilloscope music](https://oscilloscopemusic.com)
 
 Use an analog oscilloscope for the best visual or download this cross platform [oscilloscope](https://oscilloscopemusic.com/software/oscilloscope/) with your interface.
