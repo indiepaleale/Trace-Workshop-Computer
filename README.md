@@ -23,7 +23,7 @@ There are currently three banks of oscillator built with different models.
 | `Main Knob` | Pitch (exponential), summed with `CV In 1` |
 | `X Knob`   | Growth, depth of phase, summed with `Audio In 1`<br> **ALT:** attenuate `Audio In 1` when switch is `up` |
 | `Y Knob`   | Depends on selected oscillator, summed with `Audio In 2`<br> **ALT:** attenuate `Audio In 2` when switch is `up` |
-| `Toggle witch` | **UP**: Enable **ALT**<br>**MID**: Normal mode.<br>**DOWN**: Move to next oscillator|
+| `Toggle switch` | **UP**: Enable **ALT**<br>**MID**: Normal mode.<br>**DOWN**: Move to next oscillator|
 | `LED` | Left collum indicate oscillator bank, right collum indicate index (top to bottom)|
 
 | Jack I/O | Function |
