@@ -104,29 +104,42 @@ def read_wav_file(filename):
         return left, right, framerate
 
 
-def format_array_for_cpp(array, name, values_per_line=8):
+def format_stereo_array_for_cpp(left_array, right_array, values_per_line=8):
     """
-    Format a numpy array as C++ array initialization code.
+    Format two numpy arrays as C++ StereoTable initialization code.
     
     Args:
-        array: numpy array of int16 values
-        name: name for the C++ array
+        left_array: numpy array of int16 values for left channel
+        right_array: numpy array of int16 values for right channel
         values_per_line: number of values per line in output
     
     Returns:
-        String containing C++ array definition
+        String containing formatted arrays for left and right channels
     """
-    lines = [f"constexpr int16_t {name}[{len(array)}] = {{"]
+    lines = []
     
-    for i in range(0, len(array), values_per_line):
-        chunk = array[i:i + values_per_line]
+    # Format left channel
+    lines.append("    {")
+    for i in range(0, len(left_array), values_per_line):
+        chunk = left_array[i:i + values_per_line]
         values = ', '.join(f'{v:6d}' for v in chunk)
-        if i + values_per_line < len(array):
-            lines.append(f"    {values},")
+        if i + values_per_line < len(left_array):
+            lines.append(f"        {values},")
         else:
-            lines.append(f"    {values}")
+            lines.append(f"        {values}")
+    lines.append("    },")
     
-    lines.append("};")
+    # Format right channel
+    lines.append("    {")
+    for i in range(0, len(right_array), values_per_line):
+        chunk = right_array[i:i + values_per_line]
+        values = ', '.join(f'{v:6d}' for v in chunk)
+        if i + values_per_line < len(right_array):
+            lines.append(f"        {values},")
+        else:
+            lines.append(f"        {values}")
+    lines.append("    }")
+    
     return '\n'.join(lines)
 
 
@@ -160,18 +173,16 @@ def wav_to_wavetable(input_file, table_name="WAVETABLE", output_file=None):
         f"// Original sample rate: {sample_rate} Hz",
         f"// Resampled to: {target_samples} samples",
         "",
+        "// StereoTable type defined in lookup_tables.h",
+        "// Copy below into lookup_tables.h",
+        "",
+        f"inline constexpr StereoTable {table_name}_TABLE = {{",
     ]
     
-    # Format left channel
-    output_lines.append(format_array_for_cpp(left_int16, f"{table_name}_LEFT"))
-    output_lines.append("")
+    # Format stereo arrays
+    output_lines.append(format_stereo_array_for_cpp(left_int16, right_int16))
     
-    # Format right channel
-    output_lines.append(format_array_for_cpp(right_int16, f"{table_name}_RIGHT"))
-    output_lines.append("")
-    
-    # Add helper define for table size
-    output_lines.append(f"constexpr int {table_name}_SIZE = {target_samples};")
+    output_lines.append("};")
     output_lines.append("")
     
     result = '\n'.join(output_lines)
@@ -195,13 +206,16 @@ def main():
     )
     parser.add_argument('input', help='Input WAV file path')
     parser.add_argument('-o', '--output', 
-                        help='Output header file path (default: ../include/lookup_tables.h)')
+                        help='Output header file path (default: ../data/<input_name>_table.h)')
     
     args = parser.parse_args()
     
     # Set default output path if not provided
     if args.output is None:
-        args.output = os.path.join(os.path.dirname(__file__), '..', 'include', 'lookup_tables.h')
+        # Generate output filename based on input filename
+        input_basename = os.path.splitext(os.path.basename(args.input))[0]
+        output_filename = f"{input_basename}_table.h"
+        args.output = os.path.join(os.path.dirname(__file__), '..', 'data', output_filename)
     
     try:
         wav_to_wavetable(args.input, 'WAVETABLE', args.output)
